@@ -1,0 +1,412 @@
+<?xml version="1.0"?>
+
+<odoo>
+    <data>
+
+        <template id="tdm_report_invoice_document">
+            <t t-call="web.basic_layout">
+                <link href="https://fonts.cdnfonts.com/css/futura-lt-paneuropean" rel="stylesheet"/>
+
+                <t t-set="o" t-value="o.with_context(lang=lang)" />
+                <div class="mt-5">
+                    <div class="page" style="font-size: 20px;font-family: 'Futura LT Paneuropean', sans-serif;">
+
+                        <t t-if="not company">
+                            <!-- Multicompany -->
+                            <t t-if="company_id">
+                                <t t-set="company" t-value="company_id"/>
+                            </t>
+                            <t t-elif="o and 'company_id' in o">
+                                <t t-set="company" t-value="o.company_id.sudo()"/>
+                            </t>
+                            <t t-else="else">
+                                <t t-set="company" t-value="res_company"/>
+                            </t>
+                        </t>
+
+                        <div t-attf-class="header o_company_#{company.id}_layout" t-att-style="report_header_style">
+                            <div class="row" style="margin-left:-0.9em;margin-right:-1em;">
+                                <img src="/tdm_document_templates/static/img/LOGO HEADER.png" alt="Header"/>
+                            </div>
+                        </div>
+                        <br/>
+                        <br/>
+                        <br/>
+                        <br/>
+                        <br/>
+                        <br/>
+                        <br/>
+                        <br/>
+                        <br/>
+                        <div class="pt-4 pb-2" style="margin-top:3em;padding:4em;">
+                            <div class="row" name="div_address">
+                                <div class="col-4">
+                                    <h5>Adresse de livraison:</h5>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <div t-field="o.partner_shipping_id"
+                                         t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": True}'/>
+                                </div>
+                                <div class="col-4"/>
+                                <div class="col-4">
+                                    <h5>Adresse de facturation:</h5>
+                                    <br/>
+                                    <br/>
+
+                                    <div t-field="o.partner_shipping_id"
+                                         t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": True}'/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <br/>
+                        <br/>
+
+                        <div class="pt-4 pb-2" style="padding:4em;">
+                            <div class="row">
+                                <span>Date<![CDATA[&nbsp;]]>: </span><span t-field="o.invoice_date"/><br/>
+                                <span>Numéro client<![CDATA[&nbsp;]]>: </span><span t-field="o.x_studio_numro_client"/><br/>
+                                <span>Votre référence<![CDATA[&nbsp;]]>: </span><span t-field="o.ref"/><br/>
+                                <span>Notre référence<![CDATA[&nbsp;]]>: </span><span t-field="o.user_id.name"/><br/>
+                            </div>
+                        </div>
+                        <br/>
+                        <div class="pt-4 pb-2" style="padding:4em;">
+                            <h2>Facture / <span t-field="o.name"/></h2>
+                            <br/>
+                            <table style="padding:2em;" width="100%">
+                                <thead>
+                                    <tr>
+                                        <th class="font-weight-bold text-start" width="50%" style="font-size:16px;padding:10px;background-color:#cecece;border: 1px solid #cecece;border-left: 2px solid #cecece;">
+                                            <span>Article</span>
+                                        </th>
+                                        <th class="font-weight-bold text-start" width="13%" style="font-size:16px;padding:10px;background-color:#cecece;border: 1px solid #cecece;">
+                                            <span>Référence</span>
+                                        </th>
+                                        <th class="font-weight-bold text-start" width="10%" style="font-size:16px;padding:10px;background-color:#cecece;border: 1px solid #cecece;">
+                                            <span>Quantité</span>
+                                        </th>
+                                        <th class="font-weight-bold text-start" width="15%" style="font-size:16px;padding:10px;background-color:#cecece;border: 1px solid #cecece;">
+                                            <span>Prix catalogue</span>
+                                        </th>
+                                        <th class="font-weight-bold text-start" width="12%" style="font-size:16px;padding:10px;background-color:#cecece;border: 1px solid #cecece;">
+                                            <span>Votre prix</span>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="invoice_tbody">
+                                    <t t-set="lines" t-value="o.invoice_line_ids.sorted(key=lambda l: (-l.sequence, l.date, l.move_name, -l.id), reverse=True)"/>
+
+                                    <t t-foreach="lines" t-as="line">
+                                        <tr>
+
+                                            <td name="account_invoice_line_name" style="padding:10px;border: 2px solid #cecece;border-right: 0px;">
+                                                <span t-field="line.name" t-options="{'widget': 'text'}"/>
+                                                <br/>
+                                                <span style="font-size:15px;"><span t-field="line.x_studio_description_vente"/></span>
+                                            </td>
+                                            <td class="text-left" style="padding:10px;border: 2px solid #cecece;border-left: 0px;border-right: 0px;">
+                                                <span t-field="line.x_studio_collaborateur" t-options="{'widget': 'text'}"/>
+                                            </td>
+                                            <td class="text-left" style="padding:10px;border: 2px solid #cecece;border-left: 0px;border-right: 0px;">
+                                                <span t-esc="int(line.quantity)"/>x
+                                            </td>
+                                            <td class="text-left" style="padding:10px;border: 2px solid #cecece;border-left: 0px;border-right: 0px;">
+                                                <span class="text-nowrap" t-field="line.price_unit"/>
+                                            </td>
+                                            <td class="text-left" style="padding:10px;border: 2px solid #cecece;border-left: 0px;">
+                                                <span class="text-nowrap" t-field="line.price_subtotal"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                            <br/>
+                            <div class="clearfix mb-4">
+                                <div id="total" class="row">
+                                    <div t-attf-class="#{'col-6' if report_type != 'html' else 'col-sm-7 col-md-6'} ms-auto">
+                                        <table class="table table-sm table-borderless" style="page-break-inside: avoid;">
+
+                                            <!--Tax totals-->
+                                            <t t-set="tax_totals" t-value="o.tax_totals"/>
+                                            <t t-call="tdm_document_templates.document_tax_totals"/>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="padding:4em;font-size: 20px;font-family: 'Futura LT Paneuropean', sans-serif;">
+                    La situation actuelle nous oblige à faire face à des adaptations tarifaires qui ont lieu pour certains fabricants tous les 3
+                    mois. Il nous est donc impossible de pouvoir garantir un prix fixe tout au long de l'année pour nos produits raisons pour
+                    laquelle les prix ne sont plus affichés dans notre catalogue.
+                    <br/>
+                    <br/>
+                    Vous pouvez en tout temps consulter le prix de nos produits sur notre site www.tdm.ch. Nous vous invitons également a y
+                    créer un compte client qui vous permetra d'avoir accès aux conditions octroyées à votre société.
+                </div>
+            </t>
+        </template>
+
+        <template id="tdm_report_invoice_wo_header_document">
+            <t t-call="web.basic_layout">
+                <link href="https://fonts.cdnfonts.com/css/futura-lt-paneuropean" rel="stylesheet"/>
+
+                <t t-set="o" t-value="o.with_context(lang=lang)" />
+                <div class="mt-5">
+                    <div class="page" style="font-size: 20px;font-family: 'Futura LT Paneuropean', sans-serif;">
+
+                        <t t-if="not company">
+                            <!-- Multicompany -->
+                            <t t-if="company_id">
+                                <t t-set="company" t-value="company_id"/>
+                            </t>
+                            <t t-elif="o and 'company_id' in o">
+                                <t t-set="company" t-value="o.company_id.sudo()"/>
+                            </t>
+                            <t t-else="else">
+                                <t t-set="company" t-value="res_company"/>
+                            </t>
+                        </t>
+
+<!--                        <div t-attf-class="header o_company_#{company.id}_layout" t-att-style="report_header_style">-->
+<!--                            <div class="row" style="margin-left:-0.9em;margin-right:-1em;">-->
+<!--                                <img src="/tdm_document_templates/static/img/LOGO HEADER.png" alt="Header"/>-->
+<!--                            </div>-->
+<!--                        </div>-->
+                        <br/>
+                        <br/>
+                        <br/>
+                        <br/>
+                        <br/>
+                        <br/>
+                        <br/>
+                        <br/>
+                        <br/>
+                        <div class="pt-4 pb-2" style="margin-top:3em;padding:4em;">
+                            <div class="row" name="div_address">
+                                <div class="col-4">
+                                    <h5>Adresse de livraison:</h5>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <div t-field="o.partner_shipping_id"
+                                         t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": True}'/>
+                                </div>
+                                <div class="col-4"/>
+                                <div class="col-4">
+                                    <h5>Adresse de facturation:</h5>
+                                    <br/>
+                                    <br/>
+
+                                    <div t-field="o.partner_shipping_id"
+                                         t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": True}'/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <br/>
+                        <br/>
+
+                        <div class="pt-4 pb-2" style="padding:4em;">
+                            <div class="row">
+                                <span>Date<![CDATA[&nbsp;]]>: </span><span t-field="o.invoice_date"/><br/>
+                                <span>Numéro client<![CDATA[&nbsp;]]>: </span>15325<br/>
+                                <span>Votre référence<![CDATA[&nbsp;]]>: </span>PO25654789<br/>
+                                <span>Notre référence<![CDATA[&nbsp;]]>: </span>Kilian Deillon<br/>
+                            </div>
+                        </div>
+                        <br/>
+                        <div class="pt-4 pb-2" style="padding:4em;">
+                            <h2>Facture / <span t-field="o.name"/></h2>
+                            <br/>
+                            <table style="padding:2em;" width="100%">
+                                <thead>
+                                    <tr>
+                                        <th class="font-weight-bold text-start" width="50%" style="font-size:16px;padding:10px;background-color:#cecece;border: 1px solid #cecece;border-left: 2px solid #cecece;">
+                                            <span>Article</span>
+                                        </th>
+                                        <th class="font-weight-bold text-start" width="13%" style="font-size:16px;padding:10px;background-color:#cecece;border: 1px solid #cecece;">
+                                            <span>Référence</span>
+                                        </th>
+                                        <th class="font-weight-bold text-start" width="10%" style="font-size:16px;padding:10px;background-color:#cecece;border: 1px solid #cecece;">
+                                            <span>Quantité</span>
+                                        </th>
+                                        <th class="font-weight-bold text-start" width="15%" style="font-size:16px;padding:10px;background-color:#cecece;border: 1px solid #cecece;">
+                                            <span>Prix catalogue</span>
+                                        </th>
+                                        <th class="font-weight-bold text-start" width="12%" style="font-size:16px;padding:10px;background-color:#cecece;border: 1px solid #cecece;">
+                                            <span>Votre prix</span>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="invoice_tbody">
+                                    <t t-set="lines" t-value="o.invoice_line_ids.sorted(key=lambda l: (-l.sequence, l.date, l.move_name, -l.id), reverse=True)"/>
+
+                                    <t t-foreach="lines" t-as="line">
+                                        <tr>
+
+                                            <td name="account_invoice_line_name" style="padding:10px;border: 2px solid #cecece;border-right: 0px;">
+                                                <span t-field="line.name" t-options="{'widget': 'text'}"/>
+                                                <br/>
+                                                <span style="font-size:15px;">Norme : EN20345,S3,ESD,SRC</span>
+                                            </td>
+                                            <td class="text-left" style="padding:10px;border: 2px solid #cecece;border-left: 0px;border-right: 0px;">
+                                                Jean-Pierre
+                                            </td>
+                                            <td class="text-left" style="padding:10px;border: 2px solid #cecece;border-left: 0px;border-right: 0px;">
+                                                <span t-esc="int(line.quantity)"/>x
+                                            </td>
+                                            <td class="text-left" style="padding:10px;border: 2px solid #cecece;border-left: 0px;border-right: 0px;">
+                                                <span class="text-nowrap" t-field="line.price_unit"/>
+                                            </td>
+                                            <td class="text-left" style="padding:10px;border: 2px solid #cecece;border-left: 0px;">
+                                                <span class="text-nowrap" t-field="line.price_unit"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                            <br/>
+                            <div class="clearfix mb-4">
+                                <div id="total" class="row">
+                                    <div t-attf-class="#{'col-6' if report_type != 'html' else 'col-sm-7 col-md-6'} ms-auto">
+                                        <table class="table table-sm table-borderless" style="page-break-inside: avoid;">
+
+                                            <!--Tax totals-->
+                                            <t t-set="tax_totals" t-value="o.tax_totals"/>
+                                            <t t-call="tdm_document_templates.document_tax_totals"/>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="padding:4em;font-size: 20px;font-family: 'Futura LT Paneuropean', sans-serif;">
+                    La situation actuelle nous oblige à faire face à des adaptations tarifaires qui ont lieu pour certains fabricants tous les 3
+                    mois. Il nous est donc impossible de pouvoir garantir un prix fixe tout au long de l'année pour nos produits raisons pour
+                    laquelle les prix ne sont plus affichés dans notre catalogue.
+                    <br/>
+                    <br/>
+                    Vous pouvez en tout temps consulter le prix de nos produits sur notre site www.tdm.ch. Nous vous invitons également a y
+                    créer un compte client qui vous permetra d'avoir accès aux conditions octroyées à votre société.
+                </div>
+            </t>
+        </template>
+
+        <template id="document_tax_totals">
+            <!--
+                Generic template to display tax totals in pdf reports.
+                Used by invoices, SO and PO.
+
+                ARGUMENTS:
+                - tax_totals: dict in the form generated by account.move's _get_tax_totals.
+            -->
+            <t t-foreach="tax_totals['subtotals']" t-as="subtotal">
+                <tr>
+                    <td class="text-end"><strong>Valeur HT</strong></td>
+
+                    <td class="text-end">
+                        <span
+                                t-att-class="oe_subtotal_footer_separator"
+                                t-esc="subtotal['formatted_amount']"
+                        />
+                    </td>
+                </tr>
+
+                <t t-set="subtotal_to_show" t-value="subtotal['name']"/>
+                <t t-call="tdm_document_templates.tax_groups_totals"/>
+            </t>
+
+            <!--Total amount with all taxes-->
+            <tr>
+                <td class="text-end"><strong>Total TTC</strong></td>
+                <td class="text-end">
+                    <span t-esc="tax_totals['formatted_amount_total']"/>
+                </td>
+            </tr>
+        </template>
+
+        <template id="tax_groups_totals">
+            <!--
+                Generic template to display a list of tax groups with the related amounts.
+
+                ARGUMENTS:
+                - tax_totals: dict in the form generated by account.move's _get_tax_totals.
+                - subtotal_to_show: The subtotal we need to render the groups from
+            -->
+            <t t-foreach="tax_totals['groups_by_subtotal'][subtotal_to_show]" t-as="amount_by_group">
+                <tr>
+                    <t t-if="tax_totals['display_tax_base']">
+                        <td class="text-end">
+                            <span t-esc="amount_by_group['tax_group_name']"/>
+                            <span class="text-nowrap"> on
+                                <t t-esc="amount_by_group['formatted_tax_group_base_amount']"/>
+                            </span>
+                        </td>
+                        <td class="text-end o_price_total">
+                            <span class="text-nowrap" t-esc="amount_by_group['formatted_tax_group_amount']"/>
+                        </td>
+                    </t>
+                    <t t-else="">
+                        <td class="text-end"><span class="text-nowrap" t-esc="amount_by_group['tax_group_name']"/></td>
+                        <td class="text-end o_price_total">
+                            <span class="text-nowrap" t-esc="amount_by_group['formatted_tax_group_amount']" />
+                        </td>
+                    </t>
+                </tr>
+            </t>
+        </template>
+
+        <template id="tdm_report_invoice">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-set="lang" t-value="o.partner_id.lang"/>
+                    <t t-call="tdm_document_templates.tdm_report_invoice_document" t-lang="lang"/>
+                </t>
+            </t>
+        </template>
+
+        <template id="tdm_report_invoice_wo_header">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-set="lang" t-value="o.partner_id.lang"/>
+                    <t t-call="tdm_document_templates.tdm_report_invoice_wo_header_document" t-lang="lang"/>
+                </t>
+            </t>
+        </template>
+
+        <record id="tdm_account_invoices" model="ir.actions.report">
+            <field name="name">TDM Invoice</field>
+            <field name="model">account.move</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">tdm_document_templates.tdm_report_invoice</field>
+            <field name="report_file">tdm_document_templates.tdm_report_invoice</field>
+            <field name="print_report_name">(object._get_report_base_filename())</field>
+            <field name="attachment">(object.state == 'posted') and ((object.name or 'INV').replace('/','_')+'.pdf')</field>
+            <field name="binding_model_id" ref="account.model_account_move"/>
+            <field name="binding_type">report</field>
+            <field name="paperformat_id" ref="tdm_document_templates.paperformat_tdm_invoice"/>
+            <field name="groups_id" eval="[(4, ref('account.group_account_invoice')),
+ (4, ref('account.group_account_readonly'))]"/>
+        </record>
+
+        <record id="tdm_account_invoices_wo_header" model="ir.actions.report">
+            <field name="name">TDM Invoice w/o Header</field>
+            <field name="model">account.move</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">tdm_document_templates.tdm_report_invoice_wo_header</field>
+            <field name="report_file">tdm_document_templates.tdm_report_invoice_wo_header</field>
+            <field name="print_report_name">(object._get_report_base_filename())</field>
+            <field name="attachment">(object.state == 'posted') and ((object.name or 'INV').replace('/','_')+'.pdf')</field>
+            <field name="binding_model_id" ref="account.model_account_move"/>
+            <field name="binding_type">report</field>
+            <field name="paperformat_id" ref="tdm_document_templates.paperformat_tdm_invoice"/>
+            <field name="groups_id" eval="[(4, ref('account.group_account_invoice')),
+ (4, ref('account.group_account_readonly'))]"/>
+        </record>
+    </data>
+</odoo>
