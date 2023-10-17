@@ -1,8 +1,8 @@
+# -*- coding: utf-8 -*-
 {
     'name': 'Financial Document Templates',
     'version': '1.1',
-    'license': 'LGPL-3',
-    'category': '',
+    'category': 'Sales',
     'sequence': 2,
     'author': "Sidath Liyanage",
     'website': '',
@@ -18,5 +18,6 @@
     'installable': True,
     'application': True,
     'auto_install': False,
-    'license': 'LGPL-3',
+    'license': 'LGPL-3'
 }
+
